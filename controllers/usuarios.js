@@ -7,10 +7,29 @@ const { findByIdAndUpdate } = require('../models/usuario');
 const { generarJWT } = require('../helpers/jwt');
 
 const getUsuarios = async(req, res)=>{
-    const usuario = await Usuario.find({}, 'nombre email role');
+    
+    const desde = Number(req.query.desde) || 0;
+    
+
+    /* const usuarios = await Usuario
+                            .find({}, 'nombre email role google')
+                            .skip (desde)
+                            .limit ( 5 );
+
+    const total = await Usuario.count(); */
+    //para no usar 2 await y evitar que haya demoras
+    const [usuarios, total] = await Promise.all([
+        Usuario
+                            .find({}, 'nombre email role google')
+                            .skip (desde)
+                            .limit ( 5 ),
+        Usuario.count()
+    ]);
+
     res.json({
         ok: true,
-        usuario,
+        usuarios,
+        total
     });
 }
 
